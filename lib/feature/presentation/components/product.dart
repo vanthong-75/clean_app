@@ -1,3 +1,5 @@
+import 'package:clean_app/feature/presentation/pages/product_detail.dart';
+import 'package:clean_app/feature/presentation/utils/favorite_manager.dart';
 import 'package:flutter/material.dart';
 
 // 1. Class ເກັບຂໍ້ມູນ
@@ -43,79 +45,107 @@ class ProductData {
 }
 
 // 2. Component Widget ສໍາລັບສະແດງຜົນ Card ສິນຄ້າ
-class ProductCard extends StatelessWidget {
+class ProductCard extends StatefulWidget {
   final Map<String, dynamic> item;
 
   const ProductCard({super.key, required this.item});
 
   @override
+  State<ProductCard> createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<ProductCard> {
+
+  bool isFavorite = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.15),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ຮູບພາບສິນຄ້າ
-          Expanded(
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-              child: Image.network(
-                item['image'] ?? '',
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) =>
-                    const Center(child: Icon(Icons.broken_image, size: 40)),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(
+          builder:(context) => ProductDetail(
+            name: widget.item['name'],
+             images: widget.item['image'],
+             price: widget.item['price'],)));
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.15),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ຮູບພາບສິນຄ້າ
+            Expanded(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                child: Image.network(
+                  widget.item['image'] ?? '',
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Center(child: Icon(Icons.broken_image, size: 40)),
+                ),
               ),
             ),
-          ),
-          // ລາຍລະອຽດ ຊື່ ແລະ ລາຄາ
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item['name'] ?? '',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Text(
-                      '${item['proPrice']} ₭',
-                      style: const TextStyle(
-                        color: Colors.redAccent,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
+            // ລາຍລະອຽດ ຊື່ ແລະ ລາຄາ
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.item['name'] ?? '',
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text(
+                        '${widget.item['proPrice']} ₭',
+                        style: const TextStyle(
+                          color: Colors.redAccent,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${item['price']} ₭',
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 11,
-                        decoration: TextDecoration.lineThrough,
+                      const SizedBox(width: 6),
+                      Text(
+                        '${widget.item['price']} ₭',
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 11,
+                          decoration: TextDecoration.lineThrough,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isFavorite = !isFavorite;
+                        FavoriteManager.toggleFavorite(widget.item);
+                      });
+                    },
+                    child: Icon(isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? Colors.pinkAccent : Colors.grey,
+                    size: 20,)
+                  )
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
