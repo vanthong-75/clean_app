@@ -1,46 +1,49 @@
+
 import 'package:clean_app/feature/presentation/pages/product_detail.dart';
 import 'package:clean_app/feature/presentation/utils/favorite_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 
 // 1. Class ເກັບຂໍ້ມູນ
 class ProductData {
   static List<Map<String, dynamic>> products = [
-    {
-      "name": "productA", 
-      "price": 20000,
-      "proPrice": 15000,
-      "image": "https://static.vecteezy.com/system/resources/thumbnails/055/088/397/small_2x/elegant-perfume-bottle-surrounded-by-delicate-pink-flowers-on-a-marble-surface-photo.jpg",
-    },
-    {
-      "name": "productB",
-      "price": 20000,
-      "proPrice": 15000,
-      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQN3j3ViMNQI_u0OSQg9DSMUJam8-blGPdw7HM_2j5hjGgfXgXJ3Hzxud8&s",
-    },
-    {
-      "name": "productC",
-      "price": 20000,
-      "proPrice": 15000,
-      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6u4-ik-V1Nbgqok0iZqAx5FnVtKVV98Y1bTwH7r0zQA&s=10",
-    },
-    {
-      "name": "productD",
-      "price": 20000,
-      "proPrice": 15000,
-      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSas4m8RDtWQJwUZTQSLxa1zuD56teAOklgyGJflTvOYg&s=10",
-    },
-    {
-      "name": "productE",
-      "price": 20000,
-      "proPrice": 15000,
-      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRM1Oo0b7-aOB4ULDuRiGv2mOA8Az9K6vEtzRbkxqRUwA&s=10",
-    },
-    {
-      "name": "productF",
-      "price": 20000,
-      "proPrice": 15000,
-      "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRrGumFsM5dW8k8m2bzoSMXhDCtFLtVrXSqqTjTNxFRQ&s=10",
-    },
+    // {
+    //   "name": "productA", 
+    //   "price": 20000,
+    //   "proPrice": 15000,
+    //   "image": "https://static.vecteezy.com/system/resources/thumbnails/055/088/397/small_2x/elegant-perfume-bottle-surrounded-by-delicate-pink-flowers-on-a-marble-surface-photo.jpg",
+    // },
+    // {
+    //   "name": "productB",
+    //   "price": 20000,
+    //   "proPrice": 15000,
+    //   "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQN3j3ViMNQI_u0OSQg9DSMUJam8-blGPdw7HM_2j5hjGgfXgXJ3Hzxud8&s",
+    // },
+    // {
+    //   "name": "productC",
+    //   "price": 20000,
+    //   "proPrice": 15000,
+    //   "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6u4-ik-V1Nbgqok0iZqAx5FnVtKVV98Y1bTwH7r0zQA&s=10",
+    // },
+    // {
+    //   "name": "productD",
+    //   "price": 20000,
+    //   "proPrice": 15000,
+    //   "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSas4m8RDtWQJwUZTQSLxa1zuD56teAOklgyGJflTvOYg&s=10",
+    // },
+    // {
+    //   "name": "productE",
+    //   "price": 20000,
+    //   "proPrice": 15000,
+    //   "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRM1Oo0b7-aOB4ULDuRiGv2mOA8Az9K6vEtzRbkxqRUwA&s=10",
+    // },
+    // {
+    //   "name": "productF",
+    //   "price": 20000,
+    //   "proPrice": 15000,
+    //   "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRrGumFsM5dW8k8m2bzoSMXhDCtFLtVrXSqqTjTNxFRQ&s=10",
+    // },
   ];
 }
 
@@ -56,9 +59,13 @@ class ProductCard extends StatefulWidget {
 
 class _ProductCardState extends State<ProductCard> {
 
+
   bool isFavorite = false;
+  final NumberFormat formatter = NumberFormat();
 
   @override
+
+
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
@@ -121,7 +128,7 @@ class _ProductCardState extends State<ProductCard> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        '${widget.item['price']} ₭',
+                        '${formatter.format(widget.item['price'])} ₭',
                         style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 11,

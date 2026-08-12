@@ -1,6 +1,7 @@
 import 'package:clean_app/feature/presentation/components/button_component.dart';
 import 'package:clean_app/feature/presentation/utils/add_to_cart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ProductDetail extends StatefulWidget {
   final String name;
@@ -16,6 +17,7 @@ class _ProductDetailState extends State<ProductDetail> {
 
   int Qty = 1;
   int Total = 0;
+  final NumberFormat formatter = NumberFormat();
 
   @override
 
@@ -95,8 +97,8 @@ class _ProductDetailState extends State<ProductDetail> {
                     children: [
                       Column(
                         children: [
-                          Text(' Price : ${widget.price} ₭ '),
-                          Text('Total : ${Total}')
+                          Text(' Price : ${formatter.format(widget.price)} ₭ '),
+                          Text('Total : ${formatter.format(Total)} ₭ ')
                         ],
                       ),
                      SizedBox(

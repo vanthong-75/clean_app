@@ -1,5 +1,5 @@
 import 'package:clean_app/feature/presentation/layouts/home.dart';
-import 'package:clean_app/feature/presentation/pages/Sign_in.dart';
+import 'package:clean_app/feature/presentation/pages/sign_in.dart';
 import 'package:flutter/material.dart';
 
 void main() {

@@ -1,6 +1,6 @@
 import 'package:clean_app/feature/presentation/components/button_component.dart';
 import 'package:clean_app/feature/presentation/components/input_text.dart';
-import 'package:clean_app/feature/presentation/pages/Sign_in.dart';
+import 'package:clean_app/feature/presentation/pages/sign_in.dart';
 import 'package:clean_app/feature/presentation/pages/forgot_password.dart';
 import 'package:flutter/material.dart';
 
@@ -85,56 +85,56 @@ class _SignUpState extends State<SignUp> {
                       const SizedBox(height: 20),
 
                       // 📍 2. ສ່ວນປັບປຸງ UI ຂອງ Remember me & Forgot password
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // ຫຸ້ມ GestureDetector ເພື່ອກົດຢູ່ໂຕໜັງສື 'Remember me' ແລ້ວຕິກໄດ້
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                isRememberMe = !isRememberMe;
-                              });
-                            },
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: Checkbox(
-                                    value:
-                                        isRememberMe, // ໃຊ້ຄ່າ variable ທີ່ປະກາດໄວ້
-                                    onChanged: (bool? value) {
-                                      setState(() {
-                                        isRememberMe = value ?? false;
-                                      });
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 8,
-                                ), // ໄລຍະຫ່າງ Checkbox ກັບ Text
-                                const Text('Remember me'),
-                              ],
-                            ),
-                          ),
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //   children: [
+                      //     // ຫຸ້ມ GestureDetector ເພື່ອກົດຢູ່ໂຕໜັງສື 'Remember me' ແລ້ວຕິກໄດ້
+                      //     GestureDetector(
+                      //       onTap: () {
+                      //         setState(() {
+                      //           isRememberMe = !isRememberMe;
+                      //         });
+                      //       },
+                      //       child: Row(
+                      //         children: [
+                      //           SizedBox(
+                      //             height: 24,
+                      //             width: 24,
+                      //             child: Checkbox(
+                      //               value:
+                      //                   isRememberMe, // ໃຊ້ຄ່າ variable ທີ່ປະກາດໄວ້
+                      //               onChanged: (bool? value) {
+                      //                 setState(() {
+                      //                   isRememberMe = value ?? false;
+                      //                 });
+                      //               },
+                      //             ),
+                      //           ),
+                      //           const SizedBox(
+                      //             width: 8,
+                      //           ), // ໄລຍະຫ່າງ Checkbox ກັບ Text
+                      //           const Text('Remember me'),
+                      //         ],
+                      //       ),
+                      //     ),
 
-                          // ປຸ່ມ Forgot password
-                          GestureDetector(
-                           onTap: () {
-                              Navigator.push(context, 
-                              MaterialPageRoute(builder: (context) => const ForgotPassword()));
-                              // Action ເວລາກົດ Forgot password
-                            },
-                            child: const Text(
-                              'Forgot password',
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      //     // ປຸ່ມ Forgot password
+                      //     GestureDetector(
+                      //      onTap: () {
+                      //         Navigator.push(context, 
+                      //         MaterialPageRoute(builder: (context) => const ForgotPassword()));
+                      //         // Action ເວລາກົດ Forgot password
+                      //       },
+                      //       child: const Text(
+                      //         'Forgot password',
+                      //         style: TextStyle(
+                      //           color: Colors.blue,
+                      //           fontWeight: FontWeight.bold,
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
 
                       const SizedBox(height: 50),
                       ButtonComponent.buttonComponent(

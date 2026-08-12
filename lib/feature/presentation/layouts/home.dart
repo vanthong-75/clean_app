@@ -1,10 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:clean_app/feature/presentation/components/product.dart';
 import 'package:clean_app/feature/presentation/layouts/profile.dart';
 import 'package:clean_app/feature/presentation/pages/cart.dart';
 import 'package:clean_app/feature/presentation/pages/favorite_page.dart';
-import 'package:clean_app/feature/presentation/utils/favorite_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as api;
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -15,7 +16,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
-   
+  bool _isLoading = true; // ເພີ່ມ state ສໍາລັບເຊັກ loading
 
   final List<String> bannerImges = [
     'https://img.magnific.com/free-photo/make-up-brushes-copy-space-top-view_23-2148408348.jpg?semt=ais_hybrid&w=740&q=80',
@@ -28,12 +29,40 @@ class _HomeState extends State<Home> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
   Timer? _timer;
-  
+
+  // 📌 ແກ້ໄຂ: ດຶງຂໍ້ມູນ API
+  Future<void> showData() async {
+    try {
+      final res = await api.get(Uri.parse('http://192.168.72.1:3001/products'), headers: {
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTc0MTVhMTA2ZDdmNWQ4ZDNjYzQ2OGIiLCJlbWFpbCI6ImJyaWNoQGV4YW1wbGUuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzg2NTA3Mjg2LCJleHAiOjE3ODY1OTM2ODZ9.OEAWlAqagvLGC06EcJCn_z-Dkx3ebFeT6RMKaTP9lOc" 
+      });
+      if (res.statusCode == 200) {
+        // ຖອກ await ອອກຈາກ json.decode()
+        final List resdata = json.decode(res.body); 
+        setState(() {
+          ProductData.products = List<Map<String, dynamic>>.from(resdata);
+          _isLoading = false; // ໂຫຼດຂໍ້ມູນເສັດແລ້ວ
+        });
+        print("Data loaded successfully: ${ProductData.products.length} items");
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        print("Failed to load data, Status code: ${res.statusCode}");
+      }
+    } catch (error) {
+      setState(() {
+        _isLoading = false;
+      });
+      print("Error fetching data: $error");
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    page = [ProductPage(), Cart(), FavoritePage(), Placeholder()];
+    showData();
+
     // ຕັ້ງເວລາໃຫ້ສະຫຼັບຮູບອັດໂນມັດທຸກໆ 3 ວິນາທີ
     _timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
       if (_currentPage < bannerImges.length - 1) {
@@ -52,7 +81,15 @@ class _HomeState extends State<Home> {
     });
   }
 
-  Widget ProductPage() {
+  @override
+  void dispose() {
+    _timer?.cancel(); // ຄືນ Memory ເມື່ອປ່ຽນໜ້າ
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  // 📌 UI ສໍາລັບໜ້າ Product Main Page
+  Widget productPage() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
@@ -149,39 +186,42 @@ class _HomeState extends State<Home> {
           ),
           const SizedBox(height: 16),
 
-          // 📌 [ແກ້ໄຂ] ສະແດງ Product Grid ໂດຍໃຊ້ ProductCard Component
+          // 📌 Product Grid Display (ພ້ອມ Loading Check)
           Expanded(
-            child: GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 0.75, // ປັບສັດສ່ວນ ກວ້າງ/ສູງ ຂອງກ່ອງ
-              ),
-              itemCount: ProductData.products.length,
-              itemBuilder: (context, index) {
-                final item = ProductData.products[index];
-                // ດຶງ ProductCard component ທີ່ແຍກໄວ້ໃນ product.dart ມາໃຊ້
-                return ProductCard(item: item);
-              },
-            ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ProductData.products.isEmpty
+                    ? const Center(child: Text("ບໍ່ມີຂໍ້ມູນສິນຄ້າ"))
+                    : GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 0.75,
+                        ),
+                        itemCount: ProductData.products.length,
+                        itemBuilder: (context, index) {
+                          final item = ProductData.products[index];
+                          return ProductCard(item: item);
+                        },
+                      ),
           ),
         ],
       ),
     );
   }
 
-  List page = [];
-
-  @override // 📌 ເພີ່ມ @override ໃຫ້ຖືກຕ້ອງຕາມມາດຕະຖານ
-  void dispose() {
-    _timer?.cancel(); // ຄືນ Memory ເມື່ອປ່ຽນໜ້າ
-    _pageController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
+    // 📌 ແກ້ໄຂ: ຍ້າຍ List ຂອງ Pages ມາໄວ້ໃນ build() ເພື່ອໃຫ້ມັນ Re-build ຄ່າໃໝ່ສະເໝີ
+    final List<Widget> pages = [
+      productPage(),
+      const Cart(),
+      const FavoritePage(),
+      const Placeholder(),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 235, 147, 147),
@@ -231,7 +271,7 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      body: page[_currentIndex], 
+      body: pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) {
@@ -257,8 +297,8 @@ class _HomeState extends State<Home> {
             label: 'Favorite',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            label: 'Profile',
+            icon: Icon(Icons.history),
+            label: 'History',
           ),
         ],
       ),
