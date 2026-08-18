@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'package:clean_app/feature/presentation/components/button_component.dart';
 import 'package:clean_app/feature/presentation/components/input_text.dart';
 import 'package:clean_app/feature/presentation/pages/sign_in.dart';
 import 'package:clean_app/feature/presentation/pages/forgot_password.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart'as api;
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -13,6 +15,41 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   bool isRememberMe = false;
+
+  TextEditingController Username = TextEditingController();
+  TextEditingController Password = TextEditingController();
+
+  Future <void> SignUp(
+    String email1, String password1, String username
+  ) async {
+    try{
+      final res = await api.post(Uri.parse("http://192.168.72.1:3001/auth/signup"),
+       headers: {
+        "Content-Type": "application/json"
+       },
+       body: jsonEncode({
+        "username":username,
+        "email": email1,
+        "password":password1
+       })
+       );
+       if (
+        res.statusCode == 201 
+       ) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => SignIn()));
+       }
+      //  else {
+      //   showDialog(context: context, builder: (context) {
+      //     return AlertDialog(
+      //       title: Text('ເຂົ້າສູ່ລະບົບລົ້ມເຫຼວ'),
+      //     );
+      //   },);
+      //  }
+    } catch(error){
+      print(error);
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -64,24 +101,28 @@ class _SignUpState extends State<SignUp> {
                       const Text('Sign in', style: TextStyle(fontSize: 25)),
                       const SizedBox(height: 20),
                       InputText.inputText(
-                        'Enter your email',
-                        const Icon(Icons.email),
+                        'username',
+                        const Icon(Icons.person),
+                        null
                       ),
                       const SizedBox(height: 15),
                       InputText.inputText(
-                        'Enter password',
-                        const Icon(Icons.lock),
+                        'Enter your email',
+                        const Icon(Icons.email),
+                        null
                       ),
                       const SizedBox(height: 15,),
                       InputText.inputText(
-                        'Conform your password',
+                        'Enter your password',
                         const Icon(Icons.lock),
+                        null
                       ),
-                      const SizedBox(height: 15,),
-                      InputText.inputText(
-                        'Enter referral ID(Optional) ',
-                        const Icon(Icons.person),
-                      ),
+                      // const SizedBox(height: 15,),
+                      // InputText.inputText(
+                      //   'Enter referral ID(Optional) ',
+                      //   const Icon(Icons.person),
+                      //   null
+                      // ),
                       const SizedBox(height: 20),
 
                       // 📍 2. ສ່ວນປັບປຸງ UI ຂອງ Remember me & Forgot password

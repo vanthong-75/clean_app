@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:clean_app/feature/presentation/components/product.dart';
 import 'package:clean_app/feature/presentation/layouts/profile.dart';
+import 'package:clean_app/feature/presentation/pages/Sign_in.dart';
 import 'package:clean_app/feature/presentation/pages/cart.dart';
 import 'package:clean_app/feature/presentation/pages/favorite_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as api;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -16,7 +18,8 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
-  bool _isLoading = true; // ເພີ່ມ state ສໍາລັບເຊັກ loading
+  bool _isLoading = true;
+  String _userEmail = 'Loading...'; // 📍 State ເກັບ Email
 
   final List<String> bannerImges = [
     'https://img.magnific.com/free-photo/make-up-brushes-copy-space-top-view_23-2148408348.jpg?semt=ais_hybrid&w=740&q=80',
@@ -30,25 +33,45 @@ class _HomeState extends State<Home> {
   int _currentPage = 0;
   Timer? _timer;
 
-  // 📌 ແກ້ໄຂ: ດຶງຂໍ້ມູນ API
+  // 📍 ດຶງ Email ຈາກ SharedPreferences
+  Future<void> loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userEmail = prefs.getString('user_email') ?? 'User Email';
+    });
+  }
+
+  // 📍 Function Logout (ລຶບ Local Storage)
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // ລຶບຂໍ້ມູນທີ່ບັນທຶກໄວ້ອອກ
+    if (!mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const SignIn()),
+      (route) => false,
+    );
+  }
+
   Future<void> showData() async {
     try {
-      final res = await api.get(Uri.parse('http://192.168.72.1:3001/products'), headers: {
-        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTc0MTVhMTA2ZDdmNWQ4ZDNjYzQ2OGIiLCJlbWFpbCI6ImJyaWNoQGV4YW1wbGUuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzg2NTA3Mjg2LCJleHAiOjE3ODY1OTM2ODZ9.OEAWlAqagvLGC06EcJCn_z-Dkx3ebFeT6RMKaTP9lOc" 
-      });
+      final res = await api.get(
+        Uri.parse('http://10.10.30.29:3001/products'),
+        headers: {
+          "Authorization":
+              "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTc0MTVhMTA2ZDdmNWQ4ZDNjYzQ2OGIiLCJlbWFpbCI6ImJyaWNoQGV4YW1wbGUuY29tIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzg2OTM0MTIwLCJleHAiOjE3ODcwMjA1MjB9.G8ArEVGSLNQUv1YnECulfR8kdT1NCORZfaLKgVpCCqw"
+        },
+      );
       if (res.statusCode == 200) {
-        // ຖອກ await ອອກຈາກ json.decode()
-        final List resdata = json.decode(res.body); 
+        final List resdata = json.decode(res.body);
         setState(() {
           ProductData.products = List<Map<String, dynamic>>.from(resdata);
-          _isLoading = false; // ໂຫຼດຂໍ້ມູນເສັດແລ້ວ
+          _isLoading = false;
         });
-        print("Data loaded successfully: ${ProductData.products.length} items");
       } else {
         setState(() {
           _isLoading = false;
         });
-        print("Failed to load data, Status code: ${res.statusCode}");
       }
     } catch (error) {
       setState(() {
@@ -61,9 +84,9 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+    loadUserData(); // 📍 ໂຫຼດ Email ເວລາເປີດໜ້າ Home
     showData();
 
-    // ຕັ້ງເວລາໃຫ້ສະຫຼັບຮູບອັດໂນມັດທຸກໆ 3 ວິນາທີ
     _timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
       if (_currentPage < bannerImges.length - 1) {
         _currentPage++;
@@ -83,18 +106,16 @@ class _HomeState extends State<Home> {
 
   @override
   void dispose() {
-    _timer?.cancel(); // ຄືນ Memory ເມື່ອປ່ຽນໜ້າ
+    _timer?.cancel();
     _pageController.dispose();
     super.dispose();
   }
 
-  // 📌 UI ສໍາລັບໜ້າ Product Main Page
   Widget productPage() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Column(
         children: [
-          // Search Bar
           Row(
             children: [
               Expanded(
@@ -136,8 +157,6 @@ class _HomeState extends State<Home> {
             ],
           ),
           const SizedBox(height: 16),
-
-          // Banner Slider
           SizedBox(
             height: 160,
             child: PageView.builder(
@@ -162,10 +181,7 @@ class _HomeState extends State<Home> {
               },
             ),
           ),
-
           const SizedBox(height: 10),
-
-          // Page Indicator
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
@@ -185,8 +201,6 @@ class _HomeState extends State<Home> {
             ),
           ),
           const SizedBox(height: 16),
-
-          // 📌 Product Grid Display (ພ້ອມ Loading Check)
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -214,7 +228,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // 📌 ແກ້ໄຂ: ຍ້າຍ List ຂອງ Pages ມາໄວ້ໃນ build() ເພື່ອໃຫ້ມັນ Re-build ຄ່າໃໝ່ສະເໝີ
     final List<Widget> pages = [
       productPage(),
       const Cart(),
@@ -242,32 +255,31 @@ class _HomeState extends State<Home> {
             ),
           ),
         ),
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // 📍 ສະແດງ Email ທີ່ໂຫຼດມາ
             Text(
-              "Delivery location",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              _userEmail,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
-            Row(
+            const Row(
               children: [
-                Icon(Icons.location_on, size: 16),
+                Icon(Icons.location_on, size: 14),
                 SizedBox(width: 4),
-                Text("Columbus, Ohio, USA", style: TextStyle(fontSize: 14)),
+                Text("Columbus, Ohio, USA", style: TextStyle(fontSize: 12)),
               ],
             ),
           ],
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 15),
-            child: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.notifications_none),
-              ),
-            ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: logout, // 📍 ປຸ່ມ Logout ຖ້າຕ້ອງການອອກຈາກລະບົບ
           ),
         ],
       ),
